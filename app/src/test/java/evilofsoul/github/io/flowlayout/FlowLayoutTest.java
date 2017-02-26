@@ -2,6 +2,7 @@ package evilofsoul.github.io.flowlayout;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -55,7 +56,7 @@ public class FlowLayoutTest {
      * Checking base logic of onMeasure method
      */
     @Test
-    public void onMeasure(){
+    public void onMeasure_isCorrect(){
         View view = spy(new View(context));
 
         layout.addView(view);
@@ -90,7 +91,7 @@ public class FlowLayoutTest {
      * Checking base logic of onLayout method
      */
     @Test
-    public void onLayout(){
+    public void onLayout_isCorrect(){
         View view = spy(new View(context));
 
         layout.addView(view);
@@ -101,14 +102,13 @@ public class FlowLayoutTest {
     }
 
     @Test
-    public void layoutViewsInOneColumnWithoutBreaking(){
+    public void layout_layoutInOneColumn(){
         final int childHeight = 20;
         final int childCount = 3;
 
         View[] views = new View[childCount];
         for (int i = 0; i<childCount; i++){
-            views[i] = new View(context);
-            views[i].setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, childHeight));
+            views[i] = createViewWithHeight(childHeight);
             layout.addView(views[i]);
         }
 
@@ -124,20 +124,15 @@ public class FlowLayoutTest {
     }
 
     @Test
-    public void layoutViewsInTwoColumns(){
+    public void layout_layoutInTwoColumns(){
         final int heightOfView1 = 40;
         final int heightOfView2 = 10;
         final int heightOfView3 = 20;
-        View view1 = new View(context);
-        view1.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, heightOfView1));
-        View view2 = new View(context);
-        view2.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, heightOfView2));
-        View view3 = new View(context);
-        view3.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, heightOfView3));
+        View view1 = createViewWithHeight(heightOfView1);
+        View view2 = createViewWithHeight(heightOfView2);
+        View view3 = createViewWithHeight(heightOfView3);
 
-        layout.addView(view1);
-        layout.addView(view2);
-        layout.addView(view3);
+        addViewToLayout(layout, view1, view2, view3);
         layout.measure(widthMeasureSpec, heightMeasureSpec);
         layout.layout(0,0,VIEWPORT_WIDTH,VIEWPORT_HEIGHT);
 
@@ -156,5 +151,17 @@ public class FlowLayoutTest {
         view3.getHitRect(actualBounds);
         expectedBounds = new Rect(COLUMN_WIDTH, 0, 2*COLUMN_WIDTH , heightOfView3);
         assertThat(actualBounds, is(equalTo(expectedBounds)));
+    }
+
+    View createViewWithHeight(int height){
+        View view = new View(context);
+        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+        return view;
+    }
+
+    void addViewToLayout(ViewGroup layout, View... views){
+        for(int i=0; i<views.length; i++){
+            layout.addView(views[i]);
+        }
     }
 }
